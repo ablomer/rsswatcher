@@ -1,5 +1,6 @@
 import { TextInput, Button, Group, Stack, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { IconTrash } from '@tabler/icons-react';
 import { FeedConfig } from '../server/types';
 import { useEffect } from 'react';
 
@@ -60,8 +61,9 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
                 mt={28}
                 onClick={() => removeFeed(index)}
                 disabled={form.values.feeds.length === 1}
+                variant="subtle"
               >
-                ×
+                <IconTrash size={16} />
               </ActionIcon>
             </Group>
           ))}
