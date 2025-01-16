@@ -1,6 +1,7 @@
 import { TextInput, Button, Group, Box, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { FeedConfig } from '../server/types';
+import { useEffect } from 'react';
 
 interface FeedFormProps {
   initialFeeds: FeedConfig[];
@@ -13,6 +14,12 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
       feeds: initialFeeds.length > 0 ? initialFeeds : [{ url: '', keywords: [] }],
     },
   });
+
+  useEffect(() => {
+    form.setValues({
+      feeds: initialFeeds.length > 0 ? initialFeeds : [{ url: '', keywords: [] }],
+    });
+  }, [initialFeeds]);
 
   const addFeed = () => {
     form.insertListItem('feeds', { url: '', keywords: [] });

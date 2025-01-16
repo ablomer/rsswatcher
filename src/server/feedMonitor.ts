@@ -107,6 +107,30 @@ export class FeedMonitor {
 
   public updateConfig() {
     this.setupCronJob();
+    
+    // Get current config and URLs
+    const config = this.configManager.getConfig();
+    const currentUrls = new Set(config.feeds.map(feed => feed.url));
+    
+    // Clean up status for deleted feeds
+    Object.keys(this.status).forEach(url => {
+      if (!currentUrls.has(url)) {
+        delete this.status[url];
+      }
+    });
+
+    // Initialize status for new feeds and check them immediately
+    config.feeds.forEach(feed => {
+      if (!this.status[feed.url]) {
+        this.status[feed.url] = {
+          lastCheck: new Date(0).toISOString(), // Set to epoch to indicate never checked
+          isChecking: false
+        };
+      }
+    });
+
+    // Trigger an immediate check of all feeds
+    this.checkFeeds().catch(console.error);
   }
 
   public stop() {

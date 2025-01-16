@@ -1,5 +1,6 @@
 import { TextInput, NumberInput, Button, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useEffect } from 'react';
 
 interface SettingsFormProps {
   initialNtfyTopic: string;
@@ -24,6 +25,13 @@ export function SettingsForm({
         value < 1 ? 'Check interval must be at least 1 minute' : null,
     },
   });
+
+  useEffect(() => {
+    form.setValues({
+      ntfyTopic: initialNtfyTopic,
+      checkInterval: initialCheckInterval,
+    });
+  }, [initialNtfyTopic, initialCheckInterval]);
 
   return (
     <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyTopic, values.checkInterval))}>

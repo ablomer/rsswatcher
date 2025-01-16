@@ -51,6 +51,7 @@ export default function App() {
         body: JSON.stringify({ ...config, feeds }),
       });
       await fetchConfig();
+      await fetchStatus();
     } catch (error) {
       console.error('Failed to update feeds:', error);
     } finally {
