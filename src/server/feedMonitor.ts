@@ -26,8 +26,11 @@ export class FeedMonitor {
       this.cronJob.stop();
     }
 
+    // Ensure we have a valid check interval
+    const checkInterval = Math.max(1, config.checkIntervalMinutes || 15);
+
     // Convert minutes to cron expression
-    const cronExpression = `*/${config.checkIntervalMinutes} * * * *`;
+    const cronExpression = `*/${checkInterval} * * * *`;
     this.cronJob = cron.schedule(cronExpression, () => {
       this.checkFeeds().catch(console.error);
     });
@@ -123,17 +126,15 @@ export class FeedMonitor {
     
     try {
       const body = {
-        topic: config.ntfyTopic,
-        title: item.title,
-        message: item.description,
         click: item.link
       }
       console.log("Sending notification", body);
       await fetch(ntfyUrl, {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: item.description,
         headers: {
-          'Content-Type': 'application/json'
+          'Title': item.title,
+          'Priority': 'low'
         }
       });
     } catch (error) {
@@ -189,5 +190,16 @@ export class FeedMonitor {
 
   public getHistory(): FeedHistory {
     return { ...this.history };
+  }
+
+  public async sendTestNotification(): Promise<void> {
+    const config = this.configManager.getConfig();
+    const testItem: FeedItem = {
+      title: "Test Notification",
+      description: "This is a test notification from your RSS Feed Monitor",
+      link: config.ntfyServerAddress,
+      pubDate: new Date().toISOString()
+    };
+    await this.sendNotification(testItem);
   }
 } 

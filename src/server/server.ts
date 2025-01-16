@@ -104,6 +104,17 @@ export class Server {
         res.status(500).json({ error: 'Failed to check feeds' });
       }
     });
+
+    // Send test notification
+    this.app.post('/api/test-notification', async (req, res) => {
+      try {
+        await this.feedMonitor.sendTestNotification();
+        res.json({ success: true });
+      } catch (error) {
+        console.error('Failed to send test notification:', error);
+        res.status(500).json({ error: 'Failed to send test notification' });
+      }
+    });
   }
 
   public async start(port: number = 3000) {

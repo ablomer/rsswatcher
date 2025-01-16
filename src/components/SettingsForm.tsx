@@ -1,6 +1,6 @@
-import { TextInput, NumberInput, Button, Stack } from '@mantine/core';
+import { TextInput, NumberInput, Button, Stack, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface SettingsFormProps {
   initialNtfyTopic: string;
@@ -15,6 +15,7 @@ export function SettingsForm({
   initialCheckInterval,
   onSubmit,
 }: SettingsFormProps) {
+  const [isTesting, setIsTesting] = useState(false);
   const form = useForm({
     initialValues: {
       ntfyTopic: initialNtfyTopic,
@@ -39,6 +40,19 @@ export function SettingsForm({
     });
   }, [initialNtfyTopic, initialNtfyServerAddress, initialCheckInterval]);
 
+  const handleTestNotification = async () => {
+    if (!form.isValid()) return;
+    
+    try {
+      setIsTesting(true);
+      await fetch('/api/test-notification', { method: 'POST' });
+    } catch (error) {
+      console.error('Failed to send test notification:', error);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyTopic, values.ntfyServerAddress, values.checkInterval))}>
       <Stack>
@@ -61,7 +75,12 @@ export function SettingsForm({
           required
           {...form.getInputProps('checkInterval')}
         />
-        <Button type="submit">Save Settings</Button>
+        <Group justify="space-between">
+          <Button onClick={handleTestNotification} loading={isTesting} variant="light">
+            Test Notification
+          </Button>
+          <Button type="submit">Save Settings</Button>
+        </Group>
       </Stack>
     </form>
   );
