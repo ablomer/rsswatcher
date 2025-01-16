@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Table, Text, Badge, Group, ScrollArea, Button, ActionIcon, Stack } from '@mantine/core';
-import { IconExternalLink, IconBell, IconBellOff } from '@tabler/icons-react';
+import { Table, Text, Badge, Group, ScrollArea, Button, ActionIcon, Stack, Modal } from '@mantine/core';
+import { IconExternalLink, IconBell, IconBellOff, IconEye } from '@tabler/icons-react';
 import { FeedHistory as FeedHistoryType, FeedHistoryEntry } from '../server/types';
 
 interface FeedHistoryProps {
@@ -10,6 +10,7 @@ interface FeedHistoryProps {
 export function FeedHistory({ onRefresh }: FeedHistoryProps) {
   const [history, setHistory] = useState<FeedHistoryType>({ entries: [], maxEntries: 1000 });
   const [loading, setLoading] = useState(true);
+  const [selectedEntry, setSelectedEntry] = useState<FeedHistoryEntry | null>(null);
 
   const fetchHistory = async () => {
     try {
@@ -106,6 +107,13 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
                     >
                       <IconExternalLink size={16} />
                     </ActionIcon>
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={() => setSelectedEntry(entry)}
+                    >
+                      <IconEye size={16} />
+                    </ActionIcon>
                   </Group>
                 </td>
               </tr>
@@ -113,6 +121,30 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
           </tbody>
         </Table>
       </ScrollArea>
+
+      <Modal
+        opened={selectedEntry !== null}
+        onClose={() => setSelectedEntry(null)}
+        title={selectedEntry?.title || ''}
+        size="lg"
+      >
+        {selectedEntry && (
+          <Stack>
+            <Text size="sm" c="dimmed">Feed URL: {selectedEntry.feedUrl}</Text>
+            <Text size="sm" c="dimmed">Published: {new Date(selectedEntry.pubDate).toLocaleString()}</Text>
+            <Text size="sm" c="dimmed">Checked: {new Date(selectedEntry.checkedAt).toLocaleString()}</Text>
+            {selectedEntry.matchedKeywords.length > 0 && (
+              <Group>
+                <Text size="sm" c="dimmed">Matched Keywords:</Text>
+                {selectedEntry.matchedKeywords.map((keyword, idx) => (
+                  <Badge key={idx} size="sm">{keyword}</Badge>
+                ))}
+              </Group>
+            )}
+            <Text mt="md" dangerouslySetInnerHTML={{ __html: selectedEntry.description }} />
+          </Stack>
+        )}
+      </Modal>
     </Stack>
   );
 } 
