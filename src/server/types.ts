@@ -6,6 +6,7 @@ export interface FeedConfig {
 export interface AppConfig {
   feeds: FeedConfig[];
   ntfyTopic: string;
+  ntfyServerAddress: string;
   checkIntervalMinutes: number;
 }
 

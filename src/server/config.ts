@@ -7,6 +7,7 @@ const CONFIG_FILE = path.join(process.cwd(), 'config.json');
 const DEFAULT_CONFIG: AppConfig = {
   feeds: [],
   ntfyTopic: '',
+  ntfyServerAddress: 'https://ntfy.sh',
   checkIntervalMinutes: 15
 };
 

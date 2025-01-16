@@ -119,7 +119,7 @@ export class FeedMonitor {
 
   private async sendNotification(item: FeedItem) {
     const config = this.configManager.getConfig();
-    const ntfyUrl = `https://ntfy.local/${config.ntfyTopic}`;
+    const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
     
     try {
       const body = {
