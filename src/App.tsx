@@ -3,6 +3,7 @@ import { Container, Title, Tabs, LoadingOverlay } from '@mantine/core';
 import { FeedForm } from './components/FeedForm';
 import { FeedStatus } from './components/FeedStatus';
 import { SettingsForm } from './components/SettingsForm';
+import { FeedHistory } from './components/FeedHistory';
 import { AppConfig, FeedStatus as FeedStatusType } from './server/types';
 
 export default function App() {
@@ -95,6 +96,7 @@ export default function App() {
         <Tabs.List mb="md">
           <Tabs.Tab value="feeds">Feeds</Tabs.Tab>
           <Tabs.Tab value="status">Status</Tabs.Tab>
+          <Tabs.Tab value="history">History</Tabs.Tab>
           <Tabs.Tab value="settings">Settings</Tabs.Tab>
         </Tabs.List>
 
@@ -104,6 +106,10 @@ export default function App() {
 
         <Tabs.Panel value="status">
           <FeedStatus status={status} onCheckNow={handleCheckNow} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="history">
+          <FeedHistory onRefresh={handleCheckNow} />
         </Tabs.Panel>
 
         <Tabs.Panel value="settings">

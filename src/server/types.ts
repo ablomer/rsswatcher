@@ -20,4 +20,16 @@ export interface FeedStatus {
   lastCheck: string;
   isChecking: boolean;
   error?: string;
+}
+
+export interface FeedHistoryEntry extends FeedItem {
+  feedUrl: string;
+  checkedAt: string;
+  notificationSent: boolean;
+  matchedKeywords: string[];
+}
+
+export interface FeedHistory {
+  entries: FeedHistoryEntry[];
+  maxEntries: number;
 } 

@@ -59,6 +59,17 @@ export class Server {
       }
     });
 
+    // Get feed history
+    this.app.get('/api/history', (req, res) => {
+      try {
+        const history = this.feedMonitor.getHistory();
+        res.json(history);
+      } catch (error) {
+        console.error('Failed to get history:', error);
+        res.status(500).json({ error: 'Failed to get history' });
+      }
+    });
+
     // Update configuration
     this.app.post('/api/config', async (req, res) => {
       try {

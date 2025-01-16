@@ -1,7 +1,7 @@
 import Parser from 'rss-parser';
 import cron from 'node-cron';
 import fetch from 'node-fetch';
-import { FeedItem, FeedStatus } from './types';
+import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry } from './types';
 import { ConfigManager } from './config';
 
 export class FeedMonitor {
@@ -9,6 +9,10 @@ export class FeedMonitor {
   private configManager: ConfigManager;
   private cronJob?: cron.ScheduledTask;
   private status: Record<string, FeedStatus> = {};
+  private history: FeedHistory = {
+    entries: [],
+    maxEntries: 1000 // Store up to 1000 entries
+  };
 
   constructor(configManager: ConfigManager) {
     this.parser = new Parser();
@@ -51,12 +55,49 @@ export class FeedMonitor {
           pubDate: item.pubDate || ''
         }));
 
+      const checkedAt = new Date().toISOString();
       for (const item of matchingItems) {
+        const matchedKeywords = keywords.filter(keyword =>
+          `${item.title} ${item.description}`.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        // Add to history before sending notification
+        const historyEntry: FeedHistoryEntry = {
+          ...item,
+          feedUrl: url,
+          checkedAt,
+          notificationSent: false,
+          matchedKeywords
+        };
+        
         await this.sendNotification(item);
+        
+        // Update history entry to reflect sent notification
+        historyEntry.notificationSent = true;
+        this.addToHistory(historyEntry);
       }
 
+      // Also track non-matching items in history
+      const nonMatchingItems = feed.items
+        .filter(item => {
+          const text = `${item.title} ${item.contentSnippet}`.toLowerCase();
+          return !keywords.some(keyword => text.includes(keyword.toLowerCase()));
+        })
+        .map(item => ({
+          title: item.title || '',
+          link: item.link || '',
+          description: item.contentSnippet || '',
+          pubDate: item.pubDate || '',
+          feedUrl: url,
+          checkedAt,
+          notificationSent: false,
+          matchedKeywords: []
+        }));
+
+      nonMatchingItems.forEach(item => this.addToHistory(item));
+
       this.status[url] = {
-        lastCheck: new Date().toISOString(),
+        lastCheck: checkedAt,
         isChecking: false
       };
     } catch (error) {
@@ -66,6 +107,13 @@ export class FeedMonitor {
         error: error instanceof Error ? error.message : 'Unknown error'
       };
       console.error(`Error checking feed ${url}:`, error);
+    }
+  }
+
+  private addToHistory(entry: FeedHistoryEntry) {
+    this.history.entries.unshift(entry);
+    if (this.history.entries.length > this.history.maxEntries) {
+      this.history.entries.pop();
     }
   }
 
@@ -137,5 +185,9 @@ export class FeedMonitor {
     if (this.cronJob) {
       this.cronJob.stop();
     }
+  }
+
+  public getHistory(): FeedHistory {
+    return { ...this.history };
   }
 } 
