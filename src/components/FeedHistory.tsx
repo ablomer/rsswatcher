@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Text, Badge, Group, Card, ScrollArea, Button, ActionIcon } from '@mantine/core';
+import { Table, Text, Badge, Group, ScrollArea, Button, ActionIcon, Stack } from '@mantine/core';
 import { IconExternalLink, IconBell, IconBellOff } from '@tabler/icons-react';
 import { FeedHistory as FeedHistoryType, FeedHistoryEntry } from '../server/types';
 
@@ -36,15 +36,15 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
   };
 
   return (
-    <Card withBorder>
-      <Group justify="apart" mb="md">
-        <Text size="lg" fw={500}>Feed History</Text>
+    <Stack h="100%" style={{ flex: 1 }}>
+      <Group justify="space-between" mb="md">
+        <Text size="xl">Feed History</Text>
         <Button onClick={handleRefresh} loading={loading}>
           Refresh
         </Button>
       </Group>
 
-      <ScrollArea h={400}>
+      <ScrollArea style={{ flex: 1 }}>
         <Table striped highlightOnHover>
           <thead>
             <tr>
@@ -113,6 +113,6 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
           </tbody>
         </Table>
       </ScrollArea>
-    </Card>
+    </Stack>
   );
 } 

@@ -54,34 +54,36 @@ export function SettingsForm({
   };
 
   return (
-    <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyTopic, values.ntfyServerAddress, values.checkInterval))}>
-      <Stack>
-        <TextInput
-          label="Ntfy Server Address"
-          placeholder="https://ntfy.sh"
-          required
-          {...form.getInputProps('ntfyServerAddress')}
-        />
-        <TextInput
-          label="Ntfy Topic"
-          placeholder="your-topic-name"
-          required
-          {...form.getInputProps('ntfyTopic')}
-        />
-        <NumberInput
-          label="Check Interval (minutes)"
-          placeholder="15"
-          min={1}
-          required
-          {...form.getInputProps('checkInterval')}
-        />
-        <Group justify="space-between">
-          <Button onClick={handleTestNotification} loading={isTesting} variant="light">
-            Test Notification
-          </Button>
-          <Button type="submit">Save Settings</Button>
-        </Group>
-      </Stack>
-    </form>
+    <Stack h="100%" style={{ flex: 1 }}>
+      <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyTopic, values.ntfyServerAddress, values.checkInterval))}>
+        <Stack>
+          <TextInput
+            label="Ntfy Server Address"
+            placeholder="https://ntfy.sh"
+            required
+            {...form.getInputProps('ntfyServerAddress')}
+          />
+          <TextInput
+            label="Ntfy Topic"
+            placeholder="your-topic-name"
+            required
+            {...form.getInputProps('ntfyTopic')}
+          />
+          <NumberInput
+            label="Check Interval (minutes)"
+            placeholder="15"
+            min={1}
+            required
+            {...form.getInputProps('checkInterval')}
+          />
+          <Group justify="space-between">
+            <Button onClick={handleTestNotification} loading={isTesting} variant="light">
+              Test Notification
+            </Button>
+            <Button type="submit">Save Settings</Button>
+          </Group>
+        </Stack>
+      </form>
+    </Stack>
   );
 } 

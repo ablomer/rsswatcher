@@ -1,4 +1,4 @@
-import { TextInput, Button, Group, Box, ActionIcon } from '@mantine/core';
+import { TextInput, Button, Group, Stack, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { FeedConfig } from '../server/types';
 import { useEffect } from 'react';
@@ -30,11 +30,11 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
   };
 
   return (
-    <Box>
+    <Stack h="100%" style={{ flex: 1 }}>
       <form onSubmit={form.onSubmit((values) => onSubmit(values.feeds))}>
-        {form.values.feeds.map((feed, index) => (
-          <Box key={index} mb="md">
-            <Group align="flex-start">
+        <Stack>
+          {form.values.feeds.map((feed, index) => (
+            <Group key={index} align="flex-start">
               <TextInput
                 label="Feed URL"
                 placeholder="https://example.com/feed.xml"
@@ -64,16 +64,16 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
                 ×
               </ActionIcon>
             </Group>
-          </Box>
-        ))}
+          ))}
 
-        <Group justify="space-between" mt="md">
-          <Button type="button" variant="outline" onClick={addFeed}>
-            Add Feed
-          </Button>
-          <Button type="submit">Save Feeds</Button>
-        </Group>
+          <Group justify="space-between" mt="md">
+            <Button type="button" variant="outline" onClick={addFeed}>
+              Add Feed
+            </Button>
+            <Button type="submit">Save Feeds</Button>
+          </Group>
+        </Stack>
       </form>
-    </Box>
+    </Stack>
   );
 } 
