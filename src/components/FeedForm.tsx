@@ -1,4 +1,4 @@
-import { TextInput, Button, Group, Stack, ActionIcon } from '@mantine/core';
+import { TextInput, Button, Group, Stack, ActionIcon, MultiSelect } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconTrash } from '@tabler/icons-react';
 import { FeedConfig } from '../server/types';
@@ -43,18 +43,35 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
                 style={{ flex: 1 }}
                 {...form.getInputProps(`feeds.${index}.url`)}
               />
-              <TextInput
-                label="Keywords (comma-separated)"
-                placeholder="keyword1, keyword2"
+              <MultiSelect
+                label="Keywords"
+                placeholder="Type and press enter to add keywords"
                 style={{ flex: 1 }}
-                onChange={(event) => {
-                  const keywords = event.target.value
-                    .split(',')
-                    .map((k) => k.trim())
-                    .filter((k) => k !== '');
-                  form.setFieldValue(`feeds.${index}.keywords`, keywords);
+                data={Array.from(new Set([...feed.keywords]))}
+                value={feed.keywords}
+                onChange={(value) => {
+                  form.setFieldValue(`feeds.${index}.keywords`, value);
                 }}
-                value={feed.keywords.join(', ')}
+                searchable
+                clearable
+                withAsterisk={false}
+                onKeyDown={(event) => {
+                  if (event.key === ',' || event.key === ';') {
+                    event.preventDefault();
+                    const input = event.currentTarget as HTMLInputElement;
+                    const value = input.value.trim();
+                    if (value && !feed.keywords.includes(value)) {
+                      form.setFieldValue(`feeds.${index}.keywords`, [...feed.keywords, value]);
+                      setTimeout(() => {
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+                        if (nativeInputValueSetter) {
+                          nativeInputValueSetter.call(input, '');
+                          input.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                      }, 0);
+                    }
+                  }
+                }}
               />
               <ActionIcon
                 color="red"
