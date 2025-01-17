@@ -101,7 +101,18 @@ export class FeedMonitor {
       // Track all items in post history
       feed.items.forEach((item: RssItem) => {
         if (item.guid) {
-          this.postHistoryManager.addCheckedPost(item.guid, url, item.title || '');
+          const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
+          const matchedKeywords = keywords.filter(keyword => 
+            text.includes(keyword.toLowerCase())
+          );
+          this.postHistoryManager.addCheckedPost(
+            item.guid,
+            url,
+            item.title || '',
+            item.link || '',
+            matchedKeywords,
+            matchedKeywords.length > 0  // notification sent if keywords matched
+          );
         }
       });
 
@@ -193,6 +204,10 @@ export class FeedMonitor {
 
   public getHistory(): FeedHistory {
     return { ...this.history };
+  }
+
+  public getPostHistoryEntries(): FeedHistoryEntry[] {
+    return this.postHistoryManager.getHistoryEntries();
   }
 
   public async sendTestNotification(): Promise<void> {

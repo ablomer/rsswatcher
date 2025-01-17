@@ -53,5 +53,8 @@ export interface PostHistory {
         feedUrl: string;
         checkedAt: string;  // ISO string timestamp
         title: string;
+        link: string;
+        matchedKeywords: string[];
+        notificationSent: boolean;
     };
 } 

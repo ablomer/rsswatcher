@@ -14,8 +14,14 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
   const fetchHistory = async () => {
     try {
       const response = await fetch('/api/history');
+      if (!response.ok) {
+        throw new Error('Failed to fetch history');
+      }
       const data = await response.json();
-      setHistory(data);
+      setHistory({
+        entries: data.entries || [],
+        maxEntries: data.maxEntries || 1000
+      });
     } catch (error) {
       console.error('Failed to fetch history:', error);
     } finally {
@@ -57,7 +63,7 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
             </tr>
           </thead>
           <tbody>
-            {history.entries.map((entry: FeedHistoryEntry, index) => (
+            {(history.entries || []).map((entry: FeedHistoryEntry, index) => (
               <tr key={`${entry.feedUrl}-${entry.title}-${entry.checkedAt}-${index}`}>
                 <td>
                   <Text size="sm" lineClamp={1}>

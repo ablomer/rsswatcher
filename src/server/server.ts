@@ -62,7 +62,10 @@ export class Server {
     // Get feed history
     this.app.get('/api/history', (req, res) => {
       try {
-        const history = this.feedMonitor.getHistory();
+        const history = {
+          entries: this.feedMonitor.getPostHistoryEntries(),
+          maxEntries: 1000
+        };
         res.json(history);
       } catch (error) {
         console.error('Failed to get history:', error);
