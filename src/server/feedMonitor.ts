@@ -3,6 +3,7 @@ import cron from 'node-cron';
 import fetch from 'node-fetch';
 import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry, RssItemCustomFields, RssItem } from './types';
 import { ConfigManager } from './config';
+import { PostHistoryManager } from './postHistory';
 
 export class FeedMonitor {
   private parser: Parser<object, RssItemCustomFields>;
@@ -13,6 +14,7 @@ export class FeedMonitor {
     entries: [],
     maxEntries: 1000 // Store up to 1000 entries
   };
+  private postHistoryManager: PostHistoryManager;
 
   constructor(configManager: ConfigManager) {
     this.parser = new Parser<object, RssItemCustomFields>({
@@ -24,6 +26,7 @@ export class FeedMonitor {
       }
     });
     this.configManager = configManager;
+    this.postHistoryManager = new PostHistoryManager();
     this.setupCronJob();
   }
 
@@ -51,22 +54,27 @@ export class FeedMonitor {
 
     try {
       const feed = await this.parser.parseURL(url);
-      const matchingItems = feed.items
-        .filter((item: RssItem) => {
-          const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
-          return keywords.some(keyword => 
-            text.includes(keyword.toLowerCase())
-          );
-        })
-        .map((item: RssItem) => ({
-          title: item.title || '',
-          link: item.link || '',
-          description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
-          content: item['dc:content'] || item['content:encoded'] || item.content || '',
-          summary: item.summary || '',
-          contentSnippet: item.contentSnippet || '',
-          pubDate: item.pubDate || ''
-        }));
+      const newItems = feed.items.filter((item: RssItem) => {
+        // Skip already checked posts
+        if (item.guid && this.postHistoryManager.isPostChecked(item.guid)) {
+          return false;
+        }
+        
+        const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
+        return keywords.some(keyword => 
+          text.includes(keyword.toLowerCase())
+        );
+      });
+
+      const matchingItems = newItems.map((item: RssItem) => ({
+        title: item.title || '',
+        link: item.link || '',
+        description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
+        content: item['dc:content'] || item['content:encoded'] || item.content || '',
+        summary: item.summary || '',
+        contentSnippet: item.contentSnippet || '',
+        pubDate: item.pubDate || ''
+      }));
 
       const checkedAt = new Date().toISOString();
       for (const item of matchingItems) {
@@ -90,27 +98,12 @@ export class FeedMonitor {
         this.addToHistory(historyEntry);
       }
 
-      // Also track non-matching items in history
-      const nonMatchingItems = feed.items
-        .filter((item: RssItem) => {
-          const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
-          return !keywords.some(keyword => text.includes(keyword.toLowerCase()));
-        })
-        .map((item: RssItem) => ({
-          title: item.title || '',
-          link: item.link || '',
-          description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
-          content: item['dc:content'] || item['content:encoded'] || item.content || '',
-          summary: item.summary || '',
-          contentSnippet: item.contentSnippet || '',
-          pubDate: item.pubDate || '',
-          feedUrl: url,
-          checkedAt,
-          notificationSent: false,
-          matchedKeywords: []
-        }));
-
-      nonMatchingItems.forEach(item => this.addToHistory(item));
+      // Track all items in post history
+      feed.items.forEach((item: RssItem) => {
+        if (item.guid) {
+          this.postHistoryManager.addCheckedPost(item.guid, url, item.title || '');
+        }
+      });
 
       this.status[url] = {
         lastCheck: checkedAt,

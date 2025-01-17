@@ -46,4 +46,12 @@ export interface FeedHistoryEntry extends FeedItem {
 export interface FeedHistory {
   entries: FeedHistoryEntry[];
   maxEntries: number;
+}
+
+export interface PostHistory {
+    [postGuid: string]: {
+        feedUrl: string;
+        checkedAt: string;  // ISO string timestamp
+        title: string;
+    };
 } 
