@@ -184,6 +184,14 @@ export class FeedMonitor {
     
     // Get current config and URLs
     const config = this.configManager.getConfig();
+    const configuredUrls = new Set(config.feeds.map(feed => feed.url));
+    
+    // Remove status entries for feeds that are no longer in the config
+    Object.keys(this.status).forEach(url => {
+      if (!configuredUrls.has(url)) {
+        delete this.status[url];
+      }
+    });
     
     // Initialize status entries for all configured feeds
     config.feeds.forEach(feed => {
