@@ -27,6 +27,17 @@ export class FeedMonitor {
     });
     this.configManager = configManager;
     this.postHistoryManager = new PostHistoryManager();
+    
+    // Initialize status for configured feeds
+    const config = this.configManager.getConfig();
+    config.feeds.forEach(feed => {
+      this.status[feed.url] = {
+        lastCheck: new Date(0).toISOString(),
+        isChecking: false,
+        error: undefined
+      };
+    });
+    
     this.setupCronJob();
   }
 
@@ -173,27 +184,17 @@ export class FeedMonitor {
     
     // Get current config and URLs
     const config = this.configManager.getConfig();
-    const currentUrls = new Set(config.feeds.map(feed => feed.url));
     
-    // Clean up status for deleted feeds
-    Object.keys(this.status).forEach(url => {
-      if (!currentUrls.has(url)) {
-        delete this.status[url];
-      }
-    });
-
-    // Initialize status for new feeds and check them immediately
+    // Initialize status entries for all configured feeds
     config.feeds.forEach(feed => {
       if (!this.status[feed.url]) {
         this.status[feed.url] = {
-          lastCheck: new Date(0).toISOString(), // Set to epoch to indicate never checked
-          isChecking: false
+          lastCheck: new Date(0).toISOString(),
+          isChecking: false,
+          error: undefined
         };
       }
     });
-
-    // Trigger an immediate check of all feeds
-    this.checkFeeds().catch(console.error);
   }
 
   public stop() {
