@@ -153,7 +153,7 @@ export class FeedMonitor {
     const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
     
     try {
-      console.log("Sending notification");
+      console.log(`Sending notification for ${item.title}`);
       await fetch(ntfyUrl, {
         method: 'POST',
         body: item.description,
@@ -163,7 +163,7 @@ export class FeedMonitor {
         }
       });
     } catch (error) {
-      console.error('Error sending notification:', error);
+      console.error(`Error sending notification for ${item.title}:`, error);
     }
   }
 
