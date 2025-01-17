@@ -56,8 +56,9 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
                 clearable
                 withAsterisk={false}
                 onKeyDown={(event) => {
-                  if (event.key === ',' || event.key === ';') {
+                  if (event.key === ',' || event.key === ';' || event.key === 'Enter') {
                     event.preventDefault();
+                    event.stopPropagation();
                     const input = event.currentTarget as HTMLInputElement;
                     const value = input.value.trim();
                     if (value && !feed.keywords.includes(value)) {
