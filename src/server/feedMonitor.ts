@@ -100,7 +100,7 @@ export class FeedMonitor {
 
       // Track all items in post history
       feed.items.forEach((item: RssItem) => {
-        if (item.guid) {
+        if (item.guid && !this.postHistoryManager.isPostChecked(item.guid)) {
           const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
           const matchedKeywords = keywords.filter(keyword => 
             text.includes(keyword.toLowerCase())
