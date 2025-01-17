@@ -1,11 +1,11 @@
 import Parser from 'rss-parser';
 import cron from 'node-cron';
 import fetch from 'node-fetch';
-import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry } from './types';
+import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry, RssItemCustomFields, RssItem } from './types';
 import { ConfigManager } from './config';
 
 export class FeedMonitor {
-  private parser: Parser;
+  private parser: Parser<object, RssItemCustomFields>;
   private configManager: ConfigManager;
   private cronJob?: cron.ScheduledTask;
   private status: Record<string, FeedStatus> = {};
@@ -15,7 +15,14 @@ export class FeedMonitor {
   };
 
   constructor(configManager: ConfigManager) {
-    this.parser = new Parser();
+    this.parser = new Parser<object, RssItemCustomFields>({
+      customFields: {
+        item: [
+          ['dc:content', 'dc:content'],
+          ['content:encoded', 'content:encoded']
+        ]
+      }
+    });
     this.configManager = configManager;
     this.setupCronJob();
   }
@@ -45,23 +52,26 @@ export class FeedMonitor {
     try {
       const feed = await this.parser.parseURL(url);
       const matchingItems = feed.items
-        .filter(item => {
-          const text = `${item.title} ${item.contentSnippet}`.toLowerCase();
+        .filter((item: RssItem) => {
+          const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
           return keywords.some(keyword => 
             text.includes(keyword.toLowerCase())
           );
         })
-        .map(item => ({
+        .map((item: RssItem) => ({
           title: item.title || '',
           link: item.link || '',
-          description: item.contentSnippet || '',
+          description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
+          content: item['dc:content'] || item['content:encoded'] || item.content || '',
+          summary: item.summary || '',
+          contentSnippet: item.contentSnippet || '',
           pubDate: item.pubDate || ''
         }));
 
       const checkedAt = new Date().toISOString();
       for (const item of matchingItems) {
         const matchedKeywords = keywords.filter(keyword =>
-          `${item.title} ${item.description}`.toLowerCase().includes(keyword.toLowerCase())
+          `${item.title} ${item.content}`.toLowerCase().includes(keyword.toLowerCase())
         );
         
         // Add to history before sending notification
@@ -82,14 +92,17 @@ export class FeedMonitor {
 
       // Also track non-matching items in history
       const nonMatchingItems = feed.items
-        .filter(item => {
-          const text = `${item.title} ${item.contentSnippet}`.toLowerCase();
+        .filter((item: RssItem) => {
+          const text = `${item.title || ''} ${item['dc:content'] || ''} ${item.content || ''} ${item.summary || ''} ${item.contentSnippet || ''} ${item['content:encoded'] || ''}`.toLowerCase();
           return !keywords.some(keyword => text.includes(keyword.toLowerCase()));
         })
-        .map(item => ({
+        .map((item: RssItem) => ({
           title: item.title || '',
           link: item.link || '',
-          description: item.contentSnippet || '',
+          description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
+          content: item['dc:content'] || item['content:encoded'] || item.content || '',
+          summary: item.summary || '',
+          contentSnippet: item.contentSnippet || '',
           pubDate: item.pubDate || '',
           feedUrl: url,
           checkedAt,
@@ -125,10 +138,7 @@ export class FeedMonitor {
     const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
     
     try {
-      const body = {
-        click: item.link
-      }
-      console.log("Sending notification", body);
+      console.log("Sending notification");
       await fetch(ntfyUrl, {
         method: 'POST',
         body: item.description,
@@ -197,6 +207,9 @@ export class FeedMonitor {
     const testItem: FeedItem = {
       title: "Test Notification",
       description: "This is a test notification from your RSS Feed Monitor",
+      content: "This is a test notification from your RSS Feed Monitor",
+      summary: "This is a test notification from your RSS Feed Monitor",
+      contentSnippet: "This is a test notification from your RSS Feed Monitor",
       link: config.ntfyServerAddress,
       pubDate: new Date().toISOString()
     };

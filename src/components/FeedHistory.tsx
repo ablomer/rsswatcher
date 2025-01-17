@@ -141,7 +141,33 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
                 ))}
               </Group>
             )}
-            <Text mt="md" dangerouslySetInnerHTML={{ __html: selectedEntry.description }} />
+            <Stack mt="md">
+              <Text fw={700}>Content being checked for keywords:</Text>
+              {selectedEntry.title && (
+                <Stack>
+                  <Text fw={500}>Title:</Text>
+                  <Text>{selectedEntry.title}</Text>
+                </Stack>
+              )}
+              {selectedEntry.content && (
+                <Stack>
+                  <Text fw={500}>Full Content:</Text>
+                  <Text dangerouslySetInnerHTML={{ __html: selectedEntry.content }} />
+                </Stack>
+              )}
+              {selectedEntry.summary && (
+                <Stack>
+                  <Text fw={500}>Summary:</Text>
+                  <Text dangerouslySetInnerHTML={{ __html: selectedEntry.summary }} />
+                </Stack>
+              )}
+              {selectedEntry.contentSnippet && (
+                <Stack>
+                  <Text fw={500}>Content Snippet:</Text>
+                  <Text dangerouslySetInnerHTML={{ __html: selectedEntry.contentSnippet }} />
+                </Stack>
+              )}
+            </Stack>
           </Stack>
         )}
       </Modal>

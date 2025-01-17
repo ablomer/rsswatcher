@@ -1,3 +1,5 @@
+import Parser from 'rss-parser';
+
 export interface FeedConfig {
   url: string;
   keywords: string[];
@@ -10,10 +12,21 @@ export interface AppConfig {
   checkIntervalMinutes: number;
 }
 
+export interface RssItemCustomFields {
+  dcContent?: string;
+  'content:encoded'?: string;
+  'dc:content'?: string;
+}
+
+export interface RssItem extends Parser.Item, RssItemCustomFields {}
+
 export interface FeedItem {
   title: string;
   link: string;
   description: string;
+  content: string;
+  summary: string;
+  contentSnippet: string;
   pubDate: string;
 }
 
