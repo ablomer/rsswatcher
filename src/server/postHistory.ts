@@ -6,17 +6,15 @@ const POST_HISTORY_FILE = path.join(process.cwd(), 'history.json');
 
 export class PostHistoryManager {
     private history: PostHistory = {};
-    private filePath: string;
 
     constructor() {
-        this.filePath = path.join(process.cwd(), POST_HISTORY_FILE);
         this.loadHistory();
     }
 
     private loadHistory() {
         try {
-            if (fs.existsSync(this.filePath)) {
-                const data = fs.readFileSync(this.filePath, 'utf-8');
+            if (fs.existsSync(POST_HISTORY_FILE)) {
+                const data = fs.readFileSync(POST_HISTORY_FILE, 'utf-8');
                 this.history = JSON.parse(data);
             }
         } catch (error) {
@@ -27,7 +25,13 @@ export class PostHistoryManager {
 
     private saveHistory() {
         try {
-            fs.writeFileSync(this.filePath, JSON.stringify(this.history, null, 2));
+            // Ensure the directory exists
+            const dir = path.dirname(POST_HISTORY_FILE);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            
+            fs.writeFileSync(POST_HISTORY_FILE, JSON.stringify(this.history, null, 2));
         } catch (error) {
             console.error('Error saving post history:', error);
         }
