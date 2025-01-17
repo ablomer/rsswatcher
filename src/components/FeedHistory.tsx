@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Text, Badge, Group, ScrollArea, Button, ActionIcon, Stack, Modal } from '@mantine/core';
-import { IconExternalLink, IconBell, IconBellOff, IconEye } from '@tabler/icons-react';
+import { IconExternalLink, IconBell, IconEye } from '@tabler/icons-react';
 import { FeedHistory as FeedHistoryType, FeedHistoryEntry } from '../server/types';
 
 interface FeedHistoryProps {
@@ -85,13 +85,9 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
                   </Group>
                 </td>
                 <td>
-                  {entry.notificationSent ? (
+                  {entry.notificationSent && (
                     <Badge color="green" leftSection={<IconBell size={14} />}>
                       Sent
-                    </Badge>
-                  ) : (
-                    <Badge color="gray" leftSection={<IconBellOff size={14} />}>
-                      No Match
                     </Badge>
                   )}
                 </td>
