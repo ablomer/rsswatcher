@@ -154,11 +154,14 @@ export class FeedMonitor {
     
     try {
       console.log(`Sending notification for ${item.title}`);
+      // Sanitize the title by removing any characters
+      // that aren't in the ASCII printable range (0x20 to 0x7E)
+      const sanitizedTitle = item.title.replace(/[^\x20-\x7E]/g, '');
       await fetch(ntfyUrl, {
         method: 'POST',
         body: item.description,
         headers: {
-          'Title': item.title,
+          'Title': sanitizedTitle,
           'Priority': 'low'
         }
       });
