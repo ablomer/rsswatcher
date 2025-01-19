@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { AppConfig } from './types';
+import { DEFAULT_DATA_DIR } from './constants';
 
-const CONFIG_FILE = path.join(process.cwd(), 'config.json');
+const DATA_DIR = process.env.RSS_WATCHER_DATA_DIR || DEFAULT_DATA_DIR;
+const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 
 const DEFAULT_CONFIG: AppConfig = {
   feeds: [],
@@ -15,6 +17,10 @@ export class ConfigManager {
   private config: AppConfig;
 
   constructor() {
+    // Ensure data directory exists
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
     this.config = this.loadConfig();
   }
 

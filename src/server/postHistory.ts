@@ -1,22 +1,26 @@
 import fs from 'fs';
 import path from 'path';
 import { PostHistory, FeedHistoryEntry } from './types';
+import { DEFAULT_DATA_DIR } from './constants';
 
-const POST_HISTORY_FILE = 'history.json';
+const DATA_DIR = process.env.RSS_WATCHER_DATA_DIR || DEFAULT_DATA_DIR;
+const POST_HISTORY_FILE = path.join(DATA_DIR, 'history.json');
 
 export class PostHistoryManager {
     private history: PostHistory = {};
-    private filePath: string;
 
     constructor() {
-        this.filePath = path.join(process.cwd(), POST_HISTORY_FILE);
+        // Ensure data directory exists
+        if (!fs.existsSync(DATA_DIR)) {
+            fs.mkdirSync(DATA_DIR, { recursive: true });
+        }
         this.loadHistory();
     }
 
     private loadHistory() {
         try {
-            if (fs.existsSync(this.filePath)) {
-                const data = fs.readFileSync(this.filePath, 'utf-8');
+            if (fs.existsSync(POST_HISTORY_FILE)) {
+                const data = fs.readFileSync(POST_HISTORY_FILE, 'utf-8');
                 this.history = JSON.parse(data);
             }
         } catch (error) {
@@ -27,13 +31,7 @@ export class PostHistoryManager {
 
     private saveHistory() {
         try {
-            // Ensure the directory exists
-            const dir = path.dirname(this.filePath);
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-            
-            fs.writeFileSync(this.filePath, JSON.stringify(this.history, null, 2));
+            fs.writeFileSync(POST_HISTORY_FILE, JSON.stringify(this.history, null, 2));
         } catch (error) {
             console.error('Error saving post history:', error);
         }

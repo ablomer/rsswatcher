@@ -78,7 +78,7 @@ export class FeedMonitor {
       });
 
       const matchingItems = newItems.map((item: RssItem) => ({
-        title: item.title || '',
+        title: (item.title || '').trim(),
         link: item.link || '',
         description: item['dc:content'] || item['content:encoded'] || item.content || item.summary || item.contentSnippet || '',
         content: item['dc:content'] || item['content:encoded'] || item.content || '',
@@ -119,7 +119,7 @@ export class FeedMonitor {
           this.postHistoryManager.addCheckedPost(
             item.guid,
             url,
-            item.title || '',
+            (item.title || '').trim(),
             item.link || '',
             matchedKeywords,
             matchedKeywords.length > 0  // notification sent if keywords matched
@@ -151,9 +151,9 @@ export class FeedMonitor {
   private async sendNotification(item: FeedItem) {
     const config = this.configManager.getConfig();
     const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
+    // console.log(`Sending notification for ${item.title}`);
     
     try {
-      console.log(`Sending notification for ${item.title}`);
       // Sanitize the title by removing any characters
       // that aren't in the ASCII printable range (0x20 to 0x7E)
       const sanitizedTitle = item.title.replace(/[^\x20-\x7E]/g, '');
