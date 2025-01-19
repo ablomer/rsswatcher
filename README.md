@@ -9,8 +9,6 @@ A modern web application for monitoring RSS feeds and receiving notifications wh
 - 🔔 Real-time notifications via [ntfy.sh](https://ntfy.sh)
 - ⏰ Configurable check intervals
 - 📱 Responsive web interface
-- 📜 Detailed feed history tracking
-- 🚦 Live feed status monitoring
 
 ## Getting Started
 
