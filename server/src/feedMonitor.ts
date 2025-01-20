@@ -156,7 +156,7 @@ export class FeedMonitor {
     try {
       // Sanitize the title by removing any characters
       // that aren't in the ASCII printable range (0x20 to 0x7E)
-      console.log(`Sending notification for ${sanitizedTitle}`);
+      console.log(`🔔 Sending notification: "${sanitizedTitle}" to ${ntfyUrl}`);
       await fetch(ntfyUrl, {
         method: 'POST',
         body: item.description,
@@ -166,7 +166,7 @@ export class FeedMonitor {
         }
       });
     } catch (error) {
-      console.error(`Error sending notification for ${sanitizedTitle}:`, error);
+      console.error(`❌ Failed to send "${sanitizedTitle}"\n  → Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
