@@ -5,17 +5,12 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY client/package*.json ./client/
-COPY server/package*.json ./server/
 
 # Install dependencies
 RUN npm ci
-RUN cd client && npm ci
-RUN cd server && npm ci
 
 # Copy source files
-COPY client/ ./client/
-COPY server/ ./server/
+COPY . .
 
 # Build both client and server
 RUN npm run build
@@ -30,11 +25,11 @@ COPY package*.json ./
 RUN npm ci --production
 
 # Copy built files from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src ./src
+COPY --from=builder /app/dist/client ./dist/client
+COPY --from=builder /app/dist/server ./dist/server
 
-# Create data directory and ensure it exists
-RUN mkdir -p /app/data
+# Create data directory
+VOLUME /app/data
 
 # Expose the port the app runs on
 EXPOSE 3000
