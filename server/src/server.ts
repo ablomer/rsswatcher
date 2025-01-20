@@ -5,6 +5,7 @@ import { FeedMonitor } from './feedMonitor.js';
 import { AppConfig } from './types.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Socket } from 'net';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,6 +14,7 @@ export class Server {
   private configManager: ConfigManager;
   private feedMonitor: FeedMonitor;
   private server?: ReturnType<typeof express.application.listen>;
+  private connections: Set<Socket> = new Set();
 
   constructor() {
     this.app = express();
@@ -134,6 +136,12 @@ export class Server {
 Monitoring your feeds! 📰
 `);
     });
+
+    // Track all connections
+    this.server.on('connection', (conn) => {
+      this.connections.add(conn);
+      conn.on('close', () => this.connections.delete(conn));
+    });
   }
 
   public async stop() {
@@ -142,13 +150,16 @@ Monitoring your feeds! 📰
     
     if (this.server) {
       console.log('Closing HTTP server...');
+      for (const conn of this.connections) {
+        conn.destroy();
+      }
+
       return new Promise<void>((resolve, reject) => {
         this.server!.close((err) => {
           if (err) {
             console.error('Error while closing HTTP server:', err);
             reject(err);
           } else {
-            console.log('HTTP server closed successfully');
             resolve();
           }
         });

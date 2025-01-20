@@ -14,7 +14,6 @@ async function shutdown(signal: string) {
   console.log(`\nReceived ${signal}, starting graceful shutdown...`);
   if (server) {
     await server.stop();
-    console.log('Server stopped successfully');
   }
   process.exit(0);
 }
