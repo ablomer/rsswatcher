@@ -4,9 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:client": "cd client && vite",
-    "dev:server": "cd server && NODE_ENV=development tsx src/index.ts",
-    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev": "NODE_ENV=development tsx server/src/index.ts",
     "build:client": "cd client && vite build",
     "build:server": "cd server && tsc -b tsconfig.json",
     "build": "npm run build:server && npm run build:client",

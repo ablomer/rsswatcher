@@ -36,7 +36,7 @@ export class Server {
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: 'spa',
-        root: path.resolve(__dirname, '../../../client'),
+        root: path.resolve(__dirname, '../../client'),
       });
 
       this.app.use(vite.middlewares);
