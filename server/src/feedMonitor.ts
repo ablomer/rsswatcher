@@ -102,7 +102,7 @@ export class FeedMonitor {
           matchedKeywords
         };
         
-        await this.sendNotification(item);
+        await this.sendNotification(item, matchedKeywords);
         
         // Update history entry to reflect sent notification
         historyEntry.notificationSent = true;
@@ -148,7 +148,7 @@ export class FeedMonitor {
     }
   }
 
-  private async sendNotification(item: FeedItem) {
+  private async sendNotification(item: FeedItem, matchedKeywords: string[]) {
     const config = this.configManager.getConfig();
     const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
     const sanitizedTitle = item.title.replace(/[^\x20-\x7E]/g, '');
@@ -162,7 +162,9 @@ export class FeedMonitor {
         body: item.description,
         headers: {
           'Title': sanitizedTitle,
-          'Priority': 'low'
+          'Priority': 'low',
+          'Tags': matchedKeywords.join(','),
+          'Actions': `view, Open, ${item.link}`
         }
       });
     } catch (error) {
@@ -233,6 +235,6 @@ export class FeedMonitor {
       link: config.ntfyServerAddress,
       pubDate: new Date().toISOString()
     };
-    await this.sendNotification(testItem);
+    await this.sendNotification(testItem, ["keyword1", "keyword2"]);
   }
 } 

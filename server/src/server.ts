@@ -128,7 +128,7 @@ export class Server {
     this.server = this.app.listen(port, () => {
       console.log(`
 ╔═══════════════════════════════════════════╗
-║                RSS Watcher                ║
+║  RSS Watcher                              ║
 ╚═══════════════════════════════════════════╝
 🚀 Server is running on port ${port}
 📡 Mode: ${process.env.NODE_ENV || 'production'}
