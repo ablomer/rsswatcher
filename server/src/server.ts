@@ -3,7 +3,6 @@ import cors from 'cors';
 import { ConfigManager } from './config.js';
 import { FeedMonitor } from './feedMonitor.js';
 import { AppConfig } from './types.js';
-import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -30,6 +29,7 @@ export class Server {
   private async setupVite() {
     if (process.env.NODE_ENV === 'development') {
       // In development, integrate Vite's dev middleware
+      const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: 'spa',
