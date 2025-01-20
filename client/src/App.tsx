@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container, Title, Tabs, LoadingOverlay } from '@mantine/core';
+import { Container, Title, Tabs, LoadingOverlay, Group, Button } from '@mantine/core';
 import { FeedForm } from './components/FeedForm';
 import { FeedStatus } from './components/FeedStatus';
 import { SettingsForm } from './components/SettingsForm';
@@ -89,9 +89,10 @@ export default function App() {
   return (
     <Container size="lg" py="xl">
       <LoadingOverlay visible={loading} />
-      <Title order={1} mb="xl">
-        RSS Feed Monitor
-      </Title>
+      <Group justify="space-between" mb="xl">
+        <Title order={1}>RSS Feed Monitor</Title>
+        <Button onClick={handleCheckNow} loading={loading}>Check Now</Button>
+      </Group>
 
       <Tabs defaultValue="feeds">
         <Tabs.List mb="md">
@@ -106,11 +107,11 @@ export default function App() {
         </Tabs.Panel>
 
         <Tabs.Panel value="status">
-          <FeedStatus status={status} onCheckNow={handleCheckNow} />
+          <FeedStatus status={status} />
         </Tabs.Panel>
 
         <Tabs.Panel value="history">
-          <FeedHistory onRefresh={handleCheckNow} />
+          <FeedHistory />
         </Tabs.Panel>
 
         <Tabs.Panel value="settings">

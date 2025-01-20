@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Table, Text, Badge, Group, ScrollArea, Button, ActionIcon, Stack } from '@mantine/core';
+import { Table, Text, Badge, Group, ScrollArea, ActionIcon, Stack } from '@mantine/core';
 import { IconExternalLink, IconBell } from '@tabler/icons-react';
 import { FeedHistory as FeedHistoryType, FeedHistoryEntry } from '../server/types';
 
-interface FeedHistoryProps {
-  onRefresh: () => void;
-}
-
-export function FeedHistory({ onRefresh }: FeedHistoryProps) {
+export function FeedHistory() {
   const [history, setHistory] = useState<FeedHistoryType>({ entries: [], maxEntries: 1000 });
   const [loading, setLoading] = useState(true);
 
@@ -35,19 +31,10 @@ export function FeedHistory({ onRefresh }: FeedHistoryProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const handleRefresh = () => {
-    setLoading(true);
-    fetchHistory();
-    onRefresh();
-  };
-
   return (
     <Stack h="100%" style={{ flex: 1 }}>
       <Group justify="space-between" mb="md">
         <Text size="xl">Feed History</Text>
-        <Button onClick={handleRefresh} loading={loading}>
-          Refresh
-        </Button>
       </Group>
 
       <ScrollArea style={{ flex: 1 }}>

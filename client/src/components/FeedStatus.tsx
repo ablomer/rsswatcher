@@ -1,17 +1,15 @@
-import { Paper, Text, Group, Button, Stack, ScrollArea } from '@mantine/core';
+import { Paper, Text, Group, Stack, ScrollArea } from '@mantine/core';
 import { FeedStatus as FeedStatusType } from '../server/types';
 
 interface FeedStatusProps {
   status: Record<string, FeedStatusType>;
-  onCheckNow: () => void;
 }
 
-export function FeedStatus({ status, onCheckNow }: FeedStatusProps) {
+export function FeedStatus({ status }: FeedStatusProps) {
   return (
     <Stack h="100%" style={{ flex: 1 }}>
       <Group justify="space-between" mb="md">
         <Text size="xl">Feed Status</Text>
-        <Button onClick={onCheckNow}>Check Now</Button>
       </Group>
 
       <ScrollArea style={{ flex: 1 }}>
