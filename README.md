@@ -78,6 +78,9 @@ The application uses the following environment variables:
 - `RSS_WATCHER_DATA_DIR`: Path to the directory where application data (configuration and history) is stored
   - Default: `/app/data`
   - Example: `/home/user/rsswatcher/data`
+- `RSS_WATCHER_PORT`: Port number for the server to listen on
+  - Default: `3000`
+  - Example: `8080`
 
 ## Docker Support
 

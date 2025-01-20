@@ -1,11 +1,13 @@
 import './bootstrap.js';
 import { Server } from './server.js';
+import { DEFAULT_PORT } from './constants.js';
 
 let server: Server;
 
 async function startApp() {
   server = new Server();
-  await server.start(3000);
+  const port = parseInt(process.env.RSS_WATCHER_PORT || DEFAULT_PORT.toString(), 10);
+  await server.start(port);
 }
 
 async function shutdown(signal: string) {
