@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { ConfigManager } from './config';
-import { FeedMonitor } from './feedMonitor';
-import { AppConfig } from './types';
+import { ConfigManager } from './config.js';
+import { FeedMonitor } from './feedMonitor.js';
+import { AppConfig } from './types.js';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -33,23 +33,23 @@ export class Server {
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: 'spa',
-        root: path.resolve(__dirname, '..'),
-        publicDir: path.resolve(__dirname, '../../public'),
+        root: path.resolve(__dirname, '../../../client'),
       });
 
       this.app.use(vite.middlewares);
     } else {
-      // In production, serve the built files
-      this.app.use(express.static(path.resolve(__dirname, '../../../dist')));
-      this.app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '../../../dist/index.html'));
+      // In production, serve the built files from dist/client
+      const clientDist = path.resolve(__dirname, '../client');
+      this.app.use(express.static(clientDist));
+      this.app.get('*', (_req, res) => {
+        res.sendFile(path.resolve(clientDist, 'index.html'));
       });
     }
   }
 
   private setupRoutes() {
     // Get current configuration
-    this.app.get('/api/config', (req, res) => {
+    this.app.get('/api/config', (_req, res) => {
       try {
         const config = this.configManager.getConfig();
         res.json(config);
@@ -60,7 +60,7 @@ export class Server {
     });
 
     // Get feed history
-    this.app.get('/api/history', (req, res) => {
+    this.app.get('/api/history', (_req, res) => {
       try {
         const history = {
           entries: this.feedMonitor.getPostHistoryEntries(),
@@ -87,7 +87,7 @@ export class Server {
     });
 
     // Get feed status
-    this.app.get('/api/status', (req, res) => {
+    this.app.get('/api/status', (_req, res) => {
       try {
         const status = this.feedMonitor.getStatus();
         res.json(status);
@@ -98,7 +98,7 @@ export class Server {
     });
 
     // Force check feeds
-    this.app.post('/api/check', async (req, res) => {
+    this.app.post('/api/check', async (_req, res) => {
       try {
         await this.feedMonitor.checkFeeds();
         res.json({ success: true });
@@ -109,7 +109,7 @@ export class Server {
     });
 
     // Send test notification
-    this.app.post('/api/test-notification', async (req, res) => {
+    this.app.post('/api/test-notification', async (_req, res) => {
       try {
         await this.feedMonitor.sendTestNotification();
         res.json({ success: true });

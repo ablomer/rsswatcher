@@ -5,14 +5,19 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY client/package*.json ./client/
+COPY server/package*.json ./server/
 
 # Install dependencies
 RUN npm ci
+RUN cd client && npm ci
+RUN cd server && npm ci
 
-# Copy source code
-COPY . .
+# Copy source files
+COPY client/ ./client/
+COPY server/ ./server/
 
-# Build the application
+# Build both client and server
 RUN npm run build
 
 # Production stage

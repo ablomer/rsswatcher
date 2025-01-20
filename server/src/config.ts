@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { AppConfig } from './types';
-import { DEFAULT_DATA_DIR } from './constants';
+import { AppConfig } from './types.js';
+import { DEFAULT_DATA_DIR } from './constants.js';
 
 const DATA_DIR = process.env.RSS_WATCHER_DATA_DIR || DEFAULT_DATA_DIR;
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');

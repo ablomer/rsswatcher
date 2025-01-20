@@ -1,9 +1,9 @@
 import Parser from 'rss-parser';
 import cron from 'node-cron';
 import fetch from 'node-fetch';
-import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry, RssItemCustomFields, RssItem } from './types';
-import { ConfigManager } from './config';
-import { PostHistoryManager } from './postHistory';
+import { FeedItem, FeedStatus, FeedHistory, FeedHistoryEntry, RssItemCustomFields, RssItem, FeedConfig } from './types.js';
+import { ConfigManager } from './config.js';
+import { PostHistoryManager } from './postHistory.js';
 
 export class FeedMonitor {
   private parser: Parser<object, RssItemCustomFields>;
@@ -30,7 +30,7 @@ export class FeedMonitor {
     
     // Initialize status for configured feeds
     const config = this.configManager.getConfig();
-    config.feeds.forEach(feed => {
+    config.feeds.forEach((feed: FeedConfig) => {
       this.status[feed.url] = {
         lastCheck: new Date(0).toISOString(),
         isChecking: false,
@@ -172,7 +172,7 @@ export class FeedMonitor {
 
   public async checkFeeds(): Promise<void> {
     const config = this.configManager.getConfig();
-    const checkPromises = config.feeds.map(feed => 
+    const checkPromises = config.feeds.map((feed: FeedConfig) => 
       this.checkFeed(feed.url, feed.keywords)
     );
     await Promise.all(checkPromises);
@@ -187,7 +187,7 @@ export class FeedMonitor {
     
     // Get current config and URLs
     const config = this.configManager.getConfig();
-    const configuredUrls = new Set(config.feeds.map(feed => feed.url));
+    const configuredUrls = new Set(config.feeds.map((feed: FeedConfig) => feed.url));
     
     // Remove status entries for feeds that are no longer in the config
     Object.keys(this.status).forEach(url => {
@@ -197,7 +197,7 @@ export class FeedMonitor {
     });
     
     // Initialize status entries for all configured feeds
-    config.feeds.forEach(feed => {
+    config.feeds.forEach((feed: FeedConfig) => {
       if (!this.status[feed.url]) {
         this.status[feed.url] = {
           lastCheck: new Date(0).toISOString(),
@@ -219,7 +219,7 @@ export class FeedMonitor {
   }
 
   public getPostHistoryEntries(): FeedHistoryEntry[] {
-    return this.postHistoryManager.getHistoryEntries();
+    return this.postHistoryManager.getPostHistoryEntries();
   }
 
   public async sendTestNotification(): Promise<void> {

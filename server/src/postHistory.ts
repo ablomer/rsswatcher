@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { PostHistory, FeedHistoryEntry } from './types';
-import { DEFAULT_DATA_DIR } from './constants';
+import { PostHistory, FeedHistoryEntry } from './types.js';
+import { DEFAULT_DATA_DIR } from './constants.js';
 
 const DATA_DIR = process.env.RSS_WATCHER_DATA_DIR || DEFAULT_DATA_DIR;
 const POST_HISTORY_FILE = path.join(DATA_DIR, 'history.json');
@@ -10,23 +10,19 @@ export class PostHistoryManager {
     private history: PostHistory = {};
 
     constructor() {
-        // Ensure data directory exists
-        if (!fs.existsSync(DATA_DIR)) {
-            fs.mkdirSync(DATA_DIR, { recursive: true });
-        }
         this.loadHistory();
     }
 
-    private loadHistory() {
+    private loadHistory(): PostHistory {
         try {
             if (fs.existsSync(POST_HISTORY_FILE)) {
                 const data = fs.readFileSync(POST_HISTORY_FILE, 'utf-8');
                 this.history = JSON.parse(data);
             }
         } catch (error) {
-            console.error('Error loading post history:', error);
-            this.history = {};
+            console.error('Failed to load post history:', error);
         }
+        return this.history;
     }
 
     private saveHistory() {
@@ -53,17 +49,20 @@ export class PostHistoryManager {
         this.saveHistory();
     }
 
-    public getHistoryEntries(): FeedHistoryEntry[] {
-        return Object.entries(this.history)
-            .map(([, entry]) => ({
-                ...entry,
-                description: '',  // These fields are required by FeedHistoryEntry
-                content: '',      // but not stored in post history
-                summary: '',
-                contentSnippet: '',
-                pubDate: entry.checkedAt
-            }))
-            .sort((a, b) => new Date(b.checkedAt).getTime() - new Date(a.checkedAt).getTime());
+    public getPostHistoryEntries(): FeedHistoryEntry[] {
+        return Object.values(this.history).map((entry): FeedHistoryEntry => ({
+            feedUrl: entry.feedUrl,
+            title: entry.title,
+            link: entry.link,
+            checkedAt: entry.checkedAt,
+            matchedKeywords: entry.matchedKeywords,
+            notificationSent: entry.notificationSent,
+            pubDate: entry.checkedAt,
+            description: '',
+            content: '',
+            summary: '',
+            contentSnippet: ''
+        })).sort((a, b) => new Date(b.checkedAt).getTime() - new Date(a.checkedAt).getTime());
     }
 
     public getHistory(): PostHistory {
