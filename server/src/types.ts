@@ -1,24 +1,18 @@
 import Parser from 'rss-parser';
+import { FeedConfig, NotificationSettings, NtfyPriority } from '../../shared/types.js';
 
-export interface FeedConfig {
-  url: string;
-  keywords: string[];
-}
-
-export interface AppConfig {
-  feeds: FeedConfig[];
-  ntfyTopic: string;
-  ntfyServerAddress: string;
-  checkIntervalMinutes: number;
-}
+export { FeedConfig, NotificationSettings, NtfyPriority };
 
 export interface RssItemCustomFields {
-  dcContent?: string;
-  'content:encoded'?: string;
   'dc:content'?: string;
+  'content:encoded'?: string;
 }
 
-export interface RssItem extends Parser.Item, RssItemCustomFields {}
+export interface RssItem extends Parser.Item {
+  guid?: string;
+  'dc:content'?: string;
+  'content:encoded'?: string;
+}
 
 export interface FeedItem {
   title: string;
@@ -36,6 +30,11 @@ export interface FeedStatus {
   error?: string;
 }
 
+export interface FeedHistory {
+  entries: FeedHistoryEntry[];
+  maxEntries: number;
+}
+
 export interface FeedHistoryEntry extends FeedItem {
   feedUrl: string;
   checkedAt: string;
@@ -43,9 +42,11 @@ export interface FeedHistoryEntry extends FeedItem {
   matchedKeywords: string[];
 }
 
-export interface FeedHistory {
-  entries: FeedHistoryEntry[];
-  maxEntries: number;
+export interface AppConfig {
+  feeds: FeedConfig[];
+  ntfyTopic: string;
+  ntfyServerAddress: string;
+  checkIntervalMinutes: number;
 }
 
 export interface PostHistory {

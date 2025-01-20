@@ -1,33 +1,76 @@
 import { TextInput, Button, Group, Stack, ActionIcon, MultiSelect } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconTrash } from '@tabler/icons-react';
-import { FeedConfig } from '../server/types';
-import { useEffect } from 'react';
+import { IconTrash, IconBellRinging } from '@tabler/icons-react';
+import { FeedConfig, NotificationSettings } from 'shared/types';
+import { useEffect, useState } from 'react';
+import { NotificationSettingsModal } from './NotificationSettingsModal';
 
 interface FeedFormProps {
   initialFeeds: FeedConfig[];
   onSubmit: (feeds: FeedConfig[]) => void;
 }
 
+const defaultNotificationSettings: NotificationSettings = {
+  usePostTitle: true,
+  usePostDescription: true,
+  appendLink: false,
+  priority: 'low',
+  includeKeywordTags: true,
+  includeOpenAction: true,
+};
+
 export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
+  const [editingNotificationIndex, setEditingNotificationIndex] = useState<number | null>(null);
+
   const form = useForm({
     initialValues: {
-      feeds: initialFeeds.length > 0 ? initialFeeds : [{ url: '', keywords: [] }],
+      feeds: initialFeeds.length > 0 ? initialFeeds.map(feed => ({
+        ...feed,
+        notificationSettings: feed.notificationSettings || defaultNotificationSettings,
+      })) : [{
+        url: '',
+        keywords: [],
+        notificationSettings: defaultNotificationSettings,
+      }],
     },
   });
 
   useEffect(() => {
     form.setValues({
-      feeds: initialFeeds.length > 0 ? initialFeeds : [{ url: '', keywords: [] }],
+      feeds: initialFeeds.length > 0 ? initialFeeds.map(feed => ({
+        ...feed,
+        notificationSettings: feed.notificationSettings || defaultNotificationSettings,
+      })) : [{
+        url: '',
+        keywords: [],
+        notificationSettings: defaultNotificationSettings,
+      }],
     });
   }, [initialFeeds]);
 
   const addFeed = () => {
-    form.insertListItem('feeds', { url: '', keywords: [] });
+    form.insertListItem('feeds', {
+      url: '',
+      keywords: [],
+      notificationSettings: defaultNotificationSettings,
+    });
   };
 
   const removeFeed = (index: number) => {
     form.removeListItem('feeds', index);
+  };
+
+  const handleNotificationSettingsSave = (settings: NotificationSettings) => {
+    if (editingNotificationIndex !== null) {
+      const updatedFeeds = form.values.feeds.map((feed, index) => 
+        index === editingNotificationIndex 
+          ? { ...feed, notificationSettings: settings }
+          : feed
+      );
+      form.setFieldValue('feeds', updatedFeeds);
+      setEditingNotificationIndex(null);
+      onSubmit(updatedFeeds);
+    }
   };
 
   return (
@@ -75,6 +118,15 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
                 }}
               />
               <ActionIcon
+                color="blue"
+                mt={28}
+                onClick={() => setEditingNotificationIndex(index)}
+                variant="subtle"
+                title="Notification Settings"
+              >
+                <IconBellRinging size={16} />
+              </ActionIcon>
+              <ActionIcon
                 color="red"
                 mt={28}
                 onClick={() => removeFeed(index)}
@@ -94,6 +146,13 @@ export function FeedForm({ initialFeeds, onSubmit }: FeedFormProps) {
           </Group>
         </Stack>
       </form>
+
+      <NotificationSettingsModal
+        opened={editingNotificationIndex !== null}
+        onClose={() => setEditingNotificationIndex(null)}
+        settings={editingNotificationIndex !== null ? form.values.feeds[editingNotificationIndex].notificationSettings : defaultNotificationSettings}
+        onSave={handleNotificationSettingsSave}
+      />
     </Stack>
   );
 } 

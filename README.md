@@ -7,6 +7,10 @@ A modern web application for monitoring RSS feeds and receiving notifications wh
 - 🔍 Monitor multiple RSS feeds simultaneously
 - 🔑 Define custom keywords for each feed
 - 🔔 Real-time notifications via [ntfy.sh](https://ntfy.sh)
+  - Customize notifications per feed
+  - Use post content or custom titles and descriptions
+  - Set notification priority
+  - Include post links and matched keywords
 - ⏰ Configurable check intervals
 - 📱 Responsive web interface
 
@@ -63,6 +67,13 @@ All configuration is managed through the web interface:
 ### Feed Management
 - Add, edit, or remove RSS feeds through the "Feeds" tab
 - Set keywords for each feed to monitor
+- Configure notification settings for each feed:
+  - Choose between post title or custom title
+  - Choose between post description or custom description
+  - Set notification priority (urgent, high, default, low, min)
+  - Option to append post link to description
+  - Option to include matched keywords as tags
+  - Option to add "Open" action with post link
 - View feed status and history
 
 ### Settings

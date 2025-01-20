@@ -58,6 +58,10 @@ export class FeedMonitor {
   }
 
   private async checkFeed(url: string, keywords: string[]): Promise<void> {
+    const config = this.configManager.getConfig();
+    const feedConfig = config.feeds.find(f => f.url === url);
+    if (!feedConfig) return;
+
     this.status[url] = {
       lastCheck: new Date().toISOString(),
       isChecking: true
@@ -102,7 +106,7 @@ export class FeedMonitor {
           matchedKeywords
         };
         
-        await this.sendNotification(item, matchedKeywords);
+        await this.sendNotification(item, matchedKeywords, feedConfig);
         
         // Update history entry to reflect sent notification
         historyEntry.notificationSent = true;
@@ -148,24 +152,42 @@ export class FeedMonitor {
     }
   }
 
-  private async sendNotification(item: FeedItem, matchedKeywords: string[]) {
+  private async sendNotification(item: FeedItem, matchedKeywords: string[], feedConfig: FeedConfig) {
     const config = this.configManager.getConfig();
     const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
-    const sanitizedTitle = item.title.replace(/[^\x20-\x7E]/g, '');
+    const settings = feedConfig.notificationSettings;
+    
+    // Determine title
+    const title = settings.usePostTitle ? item.title : (settings.customTitle || item.title);
+    const sanitizedTitle = title.replace(/[^\x20-\x7E]/g, '');
+    
+    // Determine description
+    let description = settings.usePostDescription ? item.description : (settings.customDescription || item.description);
+    if (settings.appendLink && item.link) {
+      description = `${description}\n\nLink: ${item.link}`;
+    }
     
     try {
-      // Sanitize the title by removing any characters
-      // that aren't in the ASCII printable range (0x20 to 0x7E)
       console.log(`🔔 Sending notification: "${sanitizedTitle}" to ${ntfyUrl}`);
+      const headers: Record<string, string> = {
+        'Title': sanitizedTitle,
+        'Priority': settings.priority,
+      };
+
+      // Add tags if enabled
+      if (settings.includeKeywordTags && matchedKeywords.length > 0) {
+        headers['Tags'] = matchedKeywords.join(',');
+      }
+
+      // Add Open action if enabled
+      if (settings.includeOpenAction && item.link) {
+        headers['Actions'] = `view, Open, ${item.link}`;
+      }
+
       await fetch(ntfyUrl, {
         method: 'POST',
-        body: item.description,
-        headers: {
-          'Title': sanitizedTitle,
-          'Priority': 'low',
-          'Tags': matchedKeywords.join(','),
-          'Actions': `view, Open, ${item.link}`
-        }
+        body: description,
+        headers,
       });
     } catch (error) {
       console.error(`❌ Failed to send "${sanitizedTitle}"\n  → Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -235,6 +257,20 @@ export class FeedMonitor {
       link: config.ntfyServerAddress,
       pubDate: new Date().toISOString()
     };
-    await this.sendNotification(testItem, ["keyword1", "keyword2"]);
+
+    const testFeedConfig: FeedConfig = {
+      url: "test",
+      keywords: ["test"],
+      notificationSettings: {
+        usePostTitle: true,
+        usePostDescription: true,
+        appendLink: true,
+        priority: 'default',
+        includeKeywordTags: true,
+        includeOpenAction: true,
+      }
+    };
+
+    await this.sendNotification(testItem, ["test"], testFeedConfig);
   }
 } 

@@ -5,11 +5,11 @@
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "outDir": "../dist/server",
-    "rootDir": "./src",
+    "rootDir": "..",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../shared/**/*"],
   "exclude": ["node_modules"]
 }
