@@ -1,7 +1,5 @@
-import { config } from 'dotenv';
+import './bootstrap.js';
 import { Server } from './server.js';
-
-config();
 
 async function startApp() {
   const server = new Server();

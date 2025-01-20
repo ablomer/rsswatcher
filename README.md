@@ -71,6 +71,14 @@ All configuration is managed through the web interface:
   - Configure ntfy server address (defaults to https://ntfy.sh)
   - Adjust feed check interval
 
+### Environment Variables
+
+The application uses the following environment variables:
+
+- `RSS_WATCHER_DATA_DIR`: Path to the directory where application data (configuration and history) is stored
+  - Default: `/app/data`
+  - Example: `/home/user/rsswatcher/data`
+
 ## Docker Support
 
 Build the Docker image:
@@ -90,7 +98,6 @@ docker run -p 3000:3000 \
   -v $(pwd)/data:/app/data \
   rsswatcher
 ```
-
 This will persist all application data (configuration and history) across container restarts.
 
 ## Contributing
