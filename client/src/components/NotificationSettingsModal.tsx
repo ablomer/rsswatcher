@@ -11,6 +11,7 @@ interface NotificationSettingsModalProps {
 
 export function NotificationSettingsModal({ opened, onClose, settings, onSave }: NotificationSettingsModalProps) {
   const [localSettings, setLocalSettings] = useState<NotificationSettings>(settings);
+  const [isTesting, setIsTesting] = useState(false);
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -26,6 +27,25 @@ export function NotificationSettingsModal({ opened, onClose, settings, onSave }:
       ...current,
       ...newSettings,
     }));
+  };
+
+  const handleTestNotification = async () => {    
+    try {
+      setIsTesting(true);
+      await fetch('/api/test-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic: localSettings.ntfyTopic
+        })
+      });
+    } catch (error) {
+      console.error('Failed to send test notification:', error);
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (
@@ -74,8 +94,16 @@ export function NotificationSettingsModal({ opened, onClose, settings, onSave }:
         {/* Options Section */}
         <Paper withBorder p="md">
           <Stack>
-            <Text fw={500} size="sm">Priority</Text>
+            <Text fw={500} size="sm">Notification Settings</Text>
+            <TextInput
+              label="Ntfy Topic"
+              placeholder="your-topic-name"
+              description="Leave empty to use the default topic from settings"
+              value={localSettings.ntfyTopic || ''}
+              onChange={(event) => updateSettings({ ntfyTopic: event.currentTarget.value || undefined })}
+            />
             <Select
+              label="Priority"
               data={[
                 { value: 'urgent', label: 'Urgent' },
                 { value: 'high', label: 'High' },
@@ -108,9 +136,14 @@ export function NotificationSettingsModal({ opened, onClose, settings, onSave }:
           </Stack>
         </Paper>
 
-        <Group justify="flex-end" mt="md">
-          <Button variant="light" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+        <Group justify="space-between" mt="md">
+          <Button onClick={handleTestNotification} loading={isTesting} variant="light">
+            Test Notification
+          </Button>
+          <Group>
+            <Button variant="light" onClick={onClose}>Cancel</Button>
+            <Button onClick={handleSave}>Save Changes</Button>
+          </Group>
         </Group>
       </Stack>
     </Modal>

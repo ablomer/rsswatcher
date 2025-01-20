@@ -1,5 +1,5 @@
 import Parser from 'rss-parser';
-import { FeedConfig, NotificationSettings, NtfyPriority } from '../../shared/types.js';
+import { FeedConfig, NotificationSettings, NtfyPriority } from 'shared/types.js';
 
 export { FeedConfig, NotificationSettings, NtfyPriority };
 
@@ -44,9 +44,9 @@ export interface FeedHistoryEntry extends FeedItem {
 
 export interface AppConfig {
   feeds: FeedConfig[];
-  ntfyTopic: string;
   ntfyServerAddress: string;
   checkIntervalMinutes: number;
+  defaultNtfyTopic: string;
 }
 
 export interface PostHistory {

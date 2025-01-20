@@ -8,6 +8,7 @@ A modern web application for monitoring RSS feeds and receiving notifications wh
 - 🔑 Define custom keywords for each feed
 - 🔔 Real-time notifications via [ntfy.sh](https://ntfy.sh)
   - Customize notifications per feed
+  - Set custom ntfy topic per feed
   - Use post content or custom titles and descriptions
   - Set notification priority
   - Include post links and matched keywords
@@ -68,6 +69,7 @@ All configuration is managed through the web interface:
 - Add, edit, or remove RSS feeds through the "Feeds" tab
 - Set keywords for each feed to monitor
 - Configure notification settings for each feed:
+  - Set ntfy topic for notifications
   - Choose between post title or custom title
   - Choose between post description or custom description
   - Set notification priority (urgent, high, default, low, min)
@@ -78,7 +80,6 @@ All configuration is managed through the web interface:
 
 ### Settings
 - Configure ntfy.sh notification settings in the "Settings" tab
-  - Set your ntfy topic
   - Configure ntfy server address (defaults to https://ntfy.sh)
   - Adjust feed check interval
 

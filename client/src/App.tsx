@@ -9,9 +9,9 @@ import { AppConfig, FeedStatus as FeedStatusType } from './server/types';
 export default function App() {
   const [config, setConfig] = useState<AppConfig>({
     feeds: [],
-    ntfyTopic: '',
     ntfyServerAddress: 'https://ntfy.sh',
     checkIntervalMinutes: 15,
+    defaultNtfyTopic: 'rss',
   });
   const [status, setStatus] = useState<Record<string, FeedStatusType>>({});
   const [loading, setLoading] = useState(true);
@@ -61,13 +61,13 @@ export default function App() {
     }
   };
 
-  const handleSettingsSubmit = async (ntfyTopic: string, ntfyServerAddress: string, checkIntervalMinutes: number) => {
+  const handleSettingsSubmit = async (ntfyServerAddress: string, checkIntervalMinutes: number, defaultNtfyTopic: string) => {
     try {
       setLoading(true);
       await fetch('/api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...config, ntfyTopic, ntfyServerAddress, checkIntervalMinutes }),
+        body: JSON.stringify({ ...config, ntfyServerAddress, checkIntervalMinutes, defaultNtfyTopic }),
       });
       await fetchConfig();
     } catch (error) {
@@ -115,9 +115,9 @@ export default function App() {
 
         <Tabs.Panel value="settings">
           <SettingsForm
-            initialNtfyTopic={config.ntfyTopic}
             initialNtfyServerAddress={config.ntfyServerAddress}
             initialCheckInterval={config.checkIntervalMinutes}
+            initialDefaultNtfyTopic={config.defaultNtfyTopic}
             onSubmit={handleSettingsSubmit}
           />
         </Tabs.Panel>

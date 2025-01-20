@@ -8,9 +8,9 @@ const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 
 const DEFAULT_CONFIG: AppConfig = {
   feeds: [],
-  ntfyTopic: '',
   ntfyServerAddress: 'https://ntfy.sh',
-  checkIntervalMinutes: 15
+  checkIntervalMinutes: 15,
+  defaultNtfyTopic: 'rss',
 };
 
 export class ConfigManager {

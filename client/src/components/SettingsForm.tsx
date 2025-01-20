@@ -1,89 +1,86 @@
-import { TextInput, NumberInput, Button, Stack, Group } from '@mantine/core';
+import { TextInput, NumberInput, Button, Stack, Group, Paper, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 interface SettingsFormProps {
-  initialNtfyTopic: string;
   initialNtfyServerAddress: string;
   initialCheckInterval: number;
-  onSubmit: (ntfyTopic: string, ntfyServerAddress: string, checkInterval: number) => void;
+  initialDefaultNtfyTopic: string;
+  onSubmit: (ntfyServerAddress: string, checkInterval: number, defaultNtfyTopic: string) => void;
 }
 
 export function SettingsForm({
-  initialNtfyTopic,
   initialNtfyServerAddress,
   initialCheckInterval,
+  initialDefaultNtfyTopic,
   onSubmit,
 }: SettingsFormProps) {
-  const [isTesting, setIsTesting] = useState(false);
   const form = useForm({
     initialValues: {
-      ntfyTopic: initialNtfyTopic,
       ntfyServerAddress: initialNtfyServerAddress,
       checkInterval: initialCheckInterval,
+      defaultNtfyTopic: initialDefaultNtfyTopic,
     },
     validate: {
-      ntfyTopic: (value) =>
-        value.length === 0 ? 'Ntfy topic is required' : null,
       ntfyServerAddress: (value) =>
-        value.length === 0 ? 'Ntfy server address is required' : null,
+        !value || value.trim().length === 0 ? 'Ntfy server address is required' : null,
       checkInterval: (value) =>
-        value < 1 ? 'Check interval must be at least 1 minute' : null,
+        !value || value < 1 ? 'Check interval must be at least 1 minute' : null,
+      defaultNtfyTopic: (value) =>
+        !value || value.trim().length === 0 ? 'Default ntfy topic is required' : null,
     },
   });
 
   useEffect(() => {
     form.setValues({
-      ntfyTopic: initialNtfyTopic,
       ntfyServerAddress: initialNtfyServerAddress,
       checkInterval: initialCheckInterval,
+      defaultNtfyTopic: initialDefaultNtfyTopic,
     });
-  }, [initialNtfyTopic, initialNtfyServerAddress, initialCheckInterval]);
-
-  const handleTestNotification = async () => {
-    if (!form.isValid()) return;
-    
-    try {
-      setIsTesting(true);
-      await fetch('/api/test-notification', { method: 'POST' });
-    } catch (error) {
-      console.error('Failed to send test notification:', error);
-    } finally {
-      setIsTesting(false);
-    }
-  };
+  }, [initialNtfyServerAddress, initialCheckInterval, initialDefaultNtfyTopic]);
 
   return (
-    <Stack h="100%" style={{ flex: 1 }}>
-      <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyTopic, values.ntfyServerAddress, values.checkInterval))}>
-        <Stack>
-          <TextInput
-            label="Ntfy Server Address"
-            placeholder="https://ntfy.sh"
-            required
-            {...form.getInputProps('ntfyServerAddress')}
-          />
-          <TextInput
-            label="Ntfy Topic"
-            placeholder="your-topic-name"
-            required
-            {...form.getInputProps('ntfyTopic')}
-          />
-          <NumberInput
-            label="Check Interval (minutes)"
-            placeholder="15"
-            min={1}
-            required
-            {...form.getInputProps('checkInterval')}
-          />
-          <Group justify="space-between">
-            <Button onClick={handleTestNotification} loading={isTesting} variant="light">
-              Test Notification
-            </Button>
-            <Button type="submit">Save Settings</Button>
-          </Group>
-        </Stack>
-      </form>
-    </Stack>
+    <form onSubmit={form.onSubmit((values) => onSubmit(values.ntfyServerAddress, values.checkInterval, values.defaultNtfyTopic))}>
+      <Stack>
+        {/* Notification Settings Section */}
+        <Paper withBorder p="md">
+          <Stack>
+            <Text fw={500} size="sm">Ntfy Settings</Text>
+            <TextInput
+              label="Server Address"
+              placeholder="https://ntfy.sh"
+              required
+              {...form.getInputProps('ntfyServerAddress')}
+            />
+            <TextInput
+              label="Default Topic"
+              placeholder="rss"
+              description="Used when a feed doesn't have a specific topic configured"
+              required
+              {...form.getInputProps('defaultNtfyTopic')}
+            />
+          </Stack>
+        </Paper>
+
+        {/* Feed Check Settings Section */}
+        <Paper withBorder p="md">
+          <Stack>
+            <Text fw={500} size="sm">Monitoring Settings</Text>
+            <NumberInput
+              label="Check Interval"
+              description="How often to check feeds for new posts (in minutes)"
+              placeholder="15"
+              min={1}
+              required
+              {...form.getInputProps('checkInterval')}
+            />
+          </Stack>
+        </Paper>
+
+        <Group justify="flex-end" mt="md">
+          <Button type="submit">Save Settings</Button>
+        </Group>
+      </Stack>
+    </form>
   );
 } 

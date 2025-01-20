@@ -9,6 +9,7 @@ export interface NotificationSettings {
   priority: NtfyPriority;
   includeKeywordTags: boolean;
   includeOpenAction: boolean;
+  ntfyTopic?: string;
 }
 
 export interface FeedConfig {

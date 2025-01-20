@@ -112,9 +112,9 @@ export class Server {
     });
 
     // Send test notification
-    this.app.post('/api/test-notification', async (_req, res) => {
+    this.app.post('/api/test-notification', async (req, res) => {
       try {
-        await this.feedMonitor.sendTestNotification();
+        await this.feedMonitor.sendTestNotification(req.body.topic);
         res.json({ success: true });
       } catch (error) {
         console.error('Failed to send test notification:', error);

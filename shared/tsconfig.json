@@ -4,20 +4,13 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
-    "outDir": "../dist/server",
-    "rootDir": "src",
-    "baseUrl": "..",
-    "paths": {
-      "shared/*": ["shared/*"]
-    },
+    "outDir": "../dist/shared",
+    "rootDir": ".",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "composite": true,
     "declaration": true
   },
-  "include": ["src/**/*"],
-  "references": [
-    { "path": "../shared/tsconfig.json" }
-  ]
-}
+  "include": ["*.ts"]
+} 

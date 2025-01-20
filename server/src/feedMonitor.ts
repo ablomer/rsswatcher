@@ -154,17 +154,18 @@ export class FeedMonitor {
 
   private async sendNotification(item: FeedItem, matchedKeywords: string[], feedConfig: FeedConfig) {
     const config = this.configManager.getConfig();
-    const ntfyUrl = `${config.ntfyServerAddress}/${config.ntfyTopic}`;
     const settings = feedConfig.notificationSettings;
+    const ntfyTopic = settings.ntfyTopic || config.defaultNtfyTopic;
+    const ntfyUrl = `${config.ntfyServerAddress}/${ntfyTopic}`;
     
     // Determine title
-    const title = settings.usePostTitle ? item.title : (settings.customTitle || item.title);
+    const title = settings.usePostTitle ? item.title : (settings.customTitle || "");
     const sanitizedTitle = title.replace(/[^\x20-\x7E]/g, '');
     
     // Determine description
-    let description = settings.usePostDescription ? item.description : (settings.customDescription || item.description);
+    let description = settings.usePostDescription ? item.description : (settings.customDescription || "");
     if (settings.appendLink && item.link) {
-      description = `${description}\n\nLink: ${item.link}`;
+      description = `${description}\n\n${item.link}`;
     }
     
     try {
@@ -207,10 +208,10 @@ export class FeedMonitor {
   }
 
   public updateConfig() {
+    const config = this.configManager.getConfig();
     this.setupCronJob();
     
     // Get current config and URLs
-    const config = this.configManager.getConfig();
     const configuredUrls = new Set(config.feeds.map((feed: FeedConfig) => feed.url));
     
     // Remove status entries for feeds that are no longer in the config
@@ -246,7 +247,7 @@ export class FeedMonitor {
     return this.postHistoryManager.getPostHistoryEntries();
   }
 
-  public async sendTestNotification(): Promise<void> {
+  public async sendTestNotification(topic?: string): Promise<void> {
     const config = this.configManager.getConfig();
     const testItem: FeedItem = {
       title: "Test Notification",
@@ -258,9 +259,9 @@ export class FeedMonitor {
       pubDate: new Date().toISOString()
     };
 
-    const testFeedConfig: FeedConfig = {
+    const testConfig: FeedConfig = {
       url: "test",
-      keywords: ["test"],
+      keywords: [],
       notificationSettings: {
         usePostTitle: true,
         usePostDescription: true,
@@ -268,9 +269,10 @@ export class FeedMonitor {
         priority: 'default',
         includeKeywordTags: true,
         includeOpenAction: true,
+        ntfyTopic: topic || config.defaultNtfyTopic
       }
     };
 
-    await this.sendNotification(testItem, ["test"], testFeedConfig);
+    await this.sendNotification(testItem, ["keyword1", "keyword2"], testConfig);
   }
 } 
