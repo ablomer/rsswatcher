@@ -39,4 +39,4 @@ ENV NODE_ENV=production
 ENV RSS_WATCHER_DATA_DIR=/app/data
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/server/index.js"]

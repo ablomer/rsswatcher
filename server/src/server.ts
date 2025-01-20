@@ -12,6 +12,7 @@ export class Server {
   private app: express.Application;
   private configManager: ConfigManager;
   private feedMonitor: FeedMonitor;
+  private server?: ReturnType<typeof express.application.listen>;
 
   constructor() {
     this.app = express();
@@ -122,12 +123,36 @@ export class Server {
 
   public async start(port: number = 3000) {
     await this.setupVite();
-    this.app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+    this.server = this.app.listen(port, () => {
+      console.log(`
+╔═══════════════════════════════════════════╗
+║                RSS Watcher                ║
+╚═══════════════════════════════════════════╝
+🚀 Server is running on port ${port}
+📡 Mode: ${process.env.NODE_ENV || 'production'}
+
+Monitoring your feeds! 📰
+`);
     });
   }
 
-  public stop() {
+  public async stop() {
+    console.log('Stopping feed monitor...');
     this.feedMonitor.stop();
+    
+    if (this.server) {
+      console.log('Closing HTTP server...');
+      return new Promise<void>((resolve, reject) => {
+        this.server!.close((err) => {
+          if (err) {
+            console.error('Error while closing HTTP server:', err);
+            reject(err);
+          } else {
+            console.log('HTTP server closed successfully');
+            resolve();
+          }
+        });
+      });
+    }
   }
 } 
